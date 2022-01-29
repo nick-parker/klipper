@@ -5,25 +5,26 @@
 3. [Where's my serial port?](#wheres-my-serial-port)
 4. [When the micro-controller restarts the device changes to /dev/ttyUSB1](#when-the-micro-controller-restarts-the-device-changes-to-devttyusb1)
 5. [The "make flash" command doesn't work](#the-make-flash-command-doesnt-work)
-6. [How do I change the serial baud rate?](#how-do-i-change-the-serial-baud-rate)
-7. [Can I run Klipper on something other than a Raspberry Pi 3?](#can-i-run-klipper-on-something-other-than-a-raspberry-pi-3)
-8. [Can I run multiple instances of Klipper on the same host machine?](#can-i-run-multiple-instances-of-klipper-on-the-same-host-machine)
-9. [Do I have to use OctoPrint?](#do-i-have-to-use-octoprint)
-10. [Why can't I move the stepper before homing the printer?](#why-cant-i-move-the-stepper-before-homing-the-printer)
-11. [Why is the Z position_endstop set to 0.5 in the default configs?](#why-is-the-z-position_endstop-set-to-05-in-the-default-configs)
-12. [I converted my config from Marlin and the X/Y axes work fine, but I just get a screeching noise when homing the Z axis](#i-converted-my-config-from-marlin-and-the-xy-axes-work-fine-but-i-just-get-a-screeching-noise-when-homing-the-z-axis)
-13. [My TMC motor driver turns off in the middle of a print](#my-tmc-motor-driver-turns-off-in-the-middle-of-a-print)
-14. [I keep getting random "Lost communication with MCU" errors](#i-keep-getting-random-lost-communication-with-mcu-errors)
-15. [My Raspberry Pi keeps rebooting during prints](#my-raspberry-pi-keeps-rebooting-during-prints)
-16. [When I set `restart_method=command` my AVR device just hangs on a restart](#when-i-set-restart_methodcommand-my-avr-device-just-hangs-on-a-restart)
-17. [Will the heaters be left on if the Raspberry Pi crashes?](#will-the-heaters-be-left-on-if-the-raspberry-pi-crashes)
-18. [How do I convert a Marlin pin number to a Klipper pin name?](#how-do-i-convert-a-marlin-pin-number-to-a-klipper-pin-name)
-19. [Do I have to wire my device to a specific type of micro-controller pin?](#do-i-have-to-wire-my-device-to-a-specific-type-of-micro-controller-pin)
-20. [How do I cancel an M109/M190 "wait for temperature" request?](#how-do-i-cancel-an-m109m190-wait-for-temperature-request)
-21. [Can I find out whether the printer has lost steps?](#can-i-find-out-whether-the-printer-has-lost-steps)
-22. [Why does Klipper report errors? I lost my print!](#why-does-klipper-report-errors-i-lost-my-print)
-23. [How do I upgrade to the latest software?](#how-do-i-upgrade-to-the-latest-software)
-24. [How do I uninstall klipper?](#how-do-i-uninstall-klipper)
+6. [My micro-controller is wired to an RPi3's UART0 pins and refuses to flash.](#My-micro-controller-is-wired-to-an-RPi3s-UART0-pins-and-refuses-to-flash)
+7. [How do I change the serial baud rate?](#how-do-i-change-the-serial-baud-rate)
+8. [Can I run Klipper on something other than a Raspberry Pi 3?](#can-i-run-klipper-on-something-other-than-a-raspberry-pi-3)
+9. [Can I run multiple instances of Klipper on the same host machine?](#can-i-run-multiple-instances-of-klipper-on-the-same-host-machine)
+10. [Do I have to use OctoPrint?](#do-i-have-to-use-octoprint)
+11. [Why can't I move the stepper before homing the printer?](#why-cant-i-move-the-stepper-before-homing-the-printer)
+12. [Why is the Z position_endstop set to 0.5 in the default configs?](#why-is-the-z-position_endstop-set-to-05-in-the-default-configs)
+13. [I converted my config from Marlin and the X/Y axes work fine, but I just get a screeching noise when homing the Z axis](#i-converted-my-config-from-marlin-and-the-xy-axes-work-fine-but-i-just-get-a-screeching-noise-when-homing-the-z-axis)
+14. [My TMC motor driver turns off in the middle of a print](#my-tmc-motor-driver-turns-off-in-the-middle-of-a-print)
+15. [I keep getting random "Lost communication with MCU" errors](#i-keep-getting-random-lost-communication-with-mcu-errors)
+16. [My Raspberry Pi keeps rebooting during prints](#my-raspberry-pi-keeps-rebooting-during-prints)
+17. [When I set `restart_method=command` my AVR device just hangs on a restart](#when-i-set-restart_methodcommand-my-avr-device-just-hangs-on-a-restart)
+18. [Will the heaters be left on if the Raspberry Pi crashes?](#will-the-heaters-be-left-on-if-the-raspberry-pi-crashes)
+19. [How do I convert a Marlin pin number to a Klipper pin name?](#how-do-i-convert-a-marlin-pin-number-to-a-klipper-pin-name)
+20. [Do I have to wire my device to a specific type of micro-controller pin?](#do-i-have-to-wire-my-device-to-a-specific-type-of-micro-controller-pin)
+21. [How do I cancel an M109/M190 "wait for temperature" request?](#how-do-i-cancel-an-m109m190-wait-for-temperature-request)
+22. [Can I find out whether the printer has lost steps?](#can-i-find-out-whether-the-printer-has-lost-steps)
+23. [Why does Klipper report errors? I lost my print!](#why-does-klipper-report-errors-i-lost-my-print)
+24. [How do I upgrade to the latest software?](#how-do-i-upgrade-to-the-latest-software)
+25. [How do I uninstall klipper?](#how-do-i-uninstall-klipper)
 
 ## How can I donate to the project?
 
@@ -92,6 +93,14 @@ if it describes how to flash the device. Finally, it may be possible
 to manually flash the device using tools such as "avrdude" or
 "bossac" - see the [bootloader document](Bootloaders.md) for
 additional information.
+
+### My micro-controller is wired to an RPi3s UART0 pins and refuses to flash.
+
+You likely need to add `dtoverlay=disable_bt` to `/boot/config.txt`. The Raspberry
+pi 3 reuses UART0 for the bluetooth host chip, so the serial port will show up as
+`/dev/AMA0` but be flooded with garbage until bluetooth is disabled. UART0 is
+not recommended in general, but works reliably with this fix if your system
+requires it.
 
 ## How do I change the serial baud rate?
 
